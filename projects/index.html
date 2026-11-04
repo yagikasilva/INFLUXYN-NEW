@@ -437,6 +437,64 @@ html.ix-on #main .grid.g2 > article.ix-in{
 }
 
 </style>
+<style id="restore-live-preview-frames">
+
+/* Restore real live website previews while keeping the mobile grid visibility fix */
+.project-preview > iframe{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:absolute!important;
+  inset:0 auto auto 0!important;
+  width:1440px!important;
+  height:810px!important;
+  max-width:none!important;
+  border:0!important;
+  background:#fff!important;
+  transform:scale(var(--preview-scale,.25))!important;
+  transform-origin:top left!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+.project-preview > .preview-placeholder{
+  z-index:1!important;
+}
+.project-preview.preview-loaded > .preview-placeholder{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+</style>
+
+<script id="restore-live-preview-loading">
+(function(){
+  function activatePreview(frame){
+    if(frame.dataset.previewHandlerAttached === '1') return;
+    frame.dataset.previewHandlerAttached = '1';
+    frame.addEventListener('load', function(){
+      var box = frame.closest('.project-preview');
+      if(box) box.classList.add('preview-loaded');
+    });
+    // Some browsers may have completed a cached iframe before this script runs.
+    try {
+      if(frame.contentWindow && frame.contentDocument && frame.contentDocument.readyState === 'complete'){
+        var box = frame.closest('.project-preview');
+        if(box) box.classList.add('preview-loaded');
+      }
+    } catch(e) {}
+  }
+  function init(){
+    document.querySelectorAll('.project-preview iframe').forEach(activatePreview);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init, {once:true});
+  } else {
+    init();
+  }
+})();
+</script>
+
 </head>
 <body><div id="airLoader" role="status" aria-label="Loading"><div class="al-eyes"><div class="al-eye"><i></i><b></b></div><div class="al-eye"><i></i><b></b></div></div><div class="al-brand">INFLU<span>XYN</span></div></div>
 <script>
