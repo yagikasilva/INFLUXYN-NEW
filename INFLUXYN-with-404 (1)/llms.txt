@@ -1,0 +1,33 @@
+# INFLUXYN
+
+> INFLUXYN by YAGI Influx Solutions is a Colombo, Sri Lanka digital agency: web development, AI automation, video production, branding, UI/UX design, digital marketing and POS applications. Plans from Rs. 15,000 with free hosting and domain.
+
+Home: https://influxyn.online/
+Contact: yagiinfluxsolutions@gmail.com, +94 75 034 8396
+
+## Services
+- [Web Development](https://influxyn.online/services/web-development/): Fast, SEO-ready websites, e-commerce stores and web apps built with WordPress, WooCommerce, React and Firebase.
+- [AI Automation](https://influxyn.online/services/ai-automation/): Chatbots, workflow automation and AI-assisted content that cut manual work and answer customers 24/7.
+- [Video Production & Editing](https://influxyn.online/services/video-production/): Brand films, social reels, motion graphics and product demos edited and colour-graded for impact.
+- [Branding & Identity](https://influxyn.online/services/branding/): Logos, colour systems, typography and brand guidelines that make your business memorable.
+- [UI/UX Design](https://influxyn.online/services/ui-ux-design/): User research, wireframes, prototypes and polished interfaces that keep customers coming back.
+- [Digital Marketing](https://influxyn.online/services/digital-marketing/): SEO, social media, content and email marketing that bring qualified leads and measurable growth.
+- [POS Applications](https://influxyn.online/services/pos-applications/): Custom point-of-sale software with inventory, sales analytics and multi-location control.
+
+## Key pages
+- [Pricing](https://influxyn.online/pricing/)
+- [Projects](https://influxyn.online/projects/)
+- [Live demos](https://influxyn.online/demos/)
+- [About](https://influxyn.online/about/)
+- [Contact](https://influxyn.online/contact/)
+
+## Blog
+- [How Much Does a Website Cost in Sri Lanka in 2026?](https://influxyn.online/blog/website-cost-sri-lanka/)
+- [WordPress vs Custom HTML or React: Which Is Right for Your Business?](https://influxyn.online/blog/wordpress-vs-custom-website/)
+- [Digital Invitations vs Printed Cards: Why More Sri Lankan Couples Go Online](https://influxyn.online/blog/digital-invitations-vs-printed/)
+- [SEO Checklist for Small Business Websites in Sri Lanka](https://influxyn.online/blog/seo-checklist-small-business/)
+- [How to Get Your Business on Google Maps in Sri Lanka](https://influxyn.online/blog/google-business-profile-sri-lanka/)
+- [Website Maintenance: What It Covers and Why Your Site Needs It](https://influxyn.online/blog/website-maintenance-what-it-covers/)
+- [How to Choose a Web Developer in Sri Lanka: 8 Questions to Ask](https://influxyn.online/blog/choose-web-developer-sri-lanka/)
+- [Online Store Checklist: What You Need Before Selling in Sri Lanka](https://influxyn.online/blog/online-store-checklist-sri-lanka/)
+- [AI Automation for Small Businesses: 6 Tasks You Can Automate Today](https://influxyn.online/blog/ai-automation-small-business-sri-lanka/)
