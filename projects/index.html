@@ -24,6 +24,70 @@ html.al-timeout #airLoader{opacity:0!important;visibility:hidden!important;point
 #airLoader .al-eye i{animation:alLook 3s cubic-bezier(.6,0,.3,1) infinite!important}
 #airLoader .al-eye b{animation:alBlink 3s ease-in-out infinite!important}
 #airLoader .al-brand{animation:alFade 1s ease both!important}
+
+/* Redesigned category filters: wrapped pill layout, no horizontal scrollbar */
+.filters{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center;
+  justify-content:center;
+  gap:10px!important;
+  width:100%;
+  max-width:100%;
+  overflow:visible!important;
+  padding:8px 0 20px!important;
+  margin:0 0 22px!important;
+  scrollbar-width:none!important;
+}
+.filters::-webkit-scrollbar{display:none!important}
+.filters button{
+  flex:0 1 auto!important;
+  min-height:39px;
+  padding:9px 16px!important;
+  border:1px solid rgba(133,170,207,.22)!important;
+  border-radius:999px!important;
+  background:rgba(17,29,43,.82)!important;
+  color:#b9cbe0!important;
+  font-size:11px!important;
+  font-weight:700!important;
+  letter-spacing:.055em;
+  line-height:1.2;
+  white-space:normal!important;
+  text-align:center;
+  transition:background .2s ease,border-color .2s ease,color .2s ease,transform .2s ease;
+}
+.filters button:hover{
+  color:#fff!important;
+  border-color:rgba(75,158,255,.65)!important;
+  background:rgba(30,75,119,.48)!important;
+  transform:translateY(-1px);
+}
+.filters button.on,
+.filters button.active{
+  color:#fff!important;
+  border-color:#398be0!important;
+  background:linear-gradient(135deg,#1768b5,#274b9b)!important;
+  box-shadow:0 5px 16px rgba(24,105,190,.22);
+}
+@media(max-width:700px){
+  .filters{
+    justify-content:flex-start;
+    gap:8px!important;
+    padding:5px 0 17px!important;
+    margin-bottom:16px!important;
+  }
+  .filters button{
+    min-height:36px;
+    padding:8px 12px!important;
+    font-size:10px!important;
+    letter-spacing:.035em;
+  }
+}
+@media(max-width:380px){
+  .filters{gap:7px!important}
+  .filters button{padding:8px 10px!important;font-size:9.5px!important}
+}
+
 </style>
 <style id="project-preview-styles">
 /* Desktop browser preview: render each site at a desktop viewport, then scale it into the card. */
@@ -37,25 +101,43 @@ html.al-timeout #airLoader{opacity:0!important;visibility:hidden!important;point
 </style>
 <script id="desktop-preview-scaling">
 (function(){
- function sizeDesktopPreviews(){
-  document.querySelectorAll('.project-preview').forEach(function(box){
-   var frame=box.querySelector('iframe');
-   if(!frame)return;
-   var scale=box.clientWidth/1440;
-   box.style.setProperty('--preview-scale',scale);
-   frame.style.width='1440px';
-   frame.style.height='810px';
-  });
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sizeDesktopPreviews);
- else sizeDesktopPreviews();
- window.addEventListener('resize',sizeDesktopPreviews,{passive:true});
- if('ResizeObserver' in window){
-  var ro=new ResizeObserver(sizeDesktopPreviews);
-  document.addEventListener('DOMContentLoaded',function(){
-   document.querySelectorAll('.project-preview').forEach(function(box){ro.observe(box);});
-  });
- }
+  'use strict';
+  var scheduled=false;
+  function sizeDesktopPreviews(){
+    scheduled=false;
+    document.querySelectorAll('.project-preview').forEach(function(box){
+      var frame=box.querySelector('iframe');
+      if(!frame)return;
+      var width=box.clientWidth;
+      if(!width)return;
+      var scale=width/1440;
+      box.style.setProperty('--preview-scale',String(scale));
+      frame.style.setProperty('width','1440px','important');
+      frame.style.setProperty('height','810px','important');
+      frame.style.setProperty('transform','scale('+scale+')','important');
+    });
+  }
+  function scheduleSize(){
+    if(scheduled)return;
+    scheduled=true;
+    requestAnimationFrame(sizeDesktopPreviews);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',scheduleSize,{once:true});
+  }else{scheduleSize();}
+  window.addEventListener('load',scheduleSize,{once:true});
+  window.addEventListener('resize',scheduleSize,{passive:true});
+  window.addEventListener('orientationchange',function(){setTimeout(scheduleSize,120);},{passive:true});
+  if('ResizeObserver' in window){
+    var observer=new ResizeObserver(scheduleSize);
+    function observe(){
+      document.querySelectorAll('.project-preview').forEach(function(box){observer.observe(box);});
+      scheduleSize();
+    }
+    if(document.readyState==='loading'){
+      document.addEventListener('DOMContentLoaded',observe,{once:true});
+    }else{observe();}
+  }
 })();
 </script>
 <style id="project-cta-card-styles">
@@ -89,7 +171,273 @@ html.al-timeout #airLoader{opacity:0!important;visibility:hidden!important;point
 .cta-orbit-one{width:390px;height:390px;right:-190px;top:-170px;box-shadow:0 0 0 35px rgba(105,184,231,.025),0 0 0 75px rgba(105,184,231,.02)}
 .cta-orbit-two{width:230px;height:230px;right:-110px;bottom:-125px;border-color:rgba(105,184,231,.1)}
 @media(max-width:700px){.project-cta-card{min-height:390px;padding:28px}.project-cta-card h3{font-size:29px}}
-</style></head>
+</style>
+<style id="projects-mobile-layout-fix">
+/* Mobile layout hardening */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img,video,svg{max-width:100%}
+.container{min-width:0}
+.grid{width:100%;min-width:0}
+.grid.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid>.card,.grid>.project-cta-card{min-width:0;width:100%;max-width:100%}
+.card{min-width:0;overflow:hidden}
+.card h3,.card p,.card .tags{overflow-wrap:anywhere}
+.project-preview{
+  width:100%;max-width:100%;min-width:0;
+  aspect-ratio:16/9;height:auto;
+  overflow:hidden;contain:layout paint;
+  border-radius:12px;
+}
+.project-preview iframe{
+  display:block;position:absolute!important;
+  top:0!important;left:0!important;
+  width:1440px!important;height:810px!important;
+  max-width:none!important;min-width:0!important;
+  transform:scale(var(--preview-scale,.25))!important;
+  transform-origin:top left!important;
+  border:0!important;pointer-events:none;
+}
+.filters{
+  display:flex;flex-wrap:nowrap;gap:8px;
+  max-width:100%;overflow-x:auto;overflow-y:hidden;
+  padding:2px 2px 12px;margin:0 0 18px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+}
+.filters button{flex:0 0 auto;white-space:nowrap}
+@media(max-width:700px){
+  .container{width:calc(100% - 28px)!important;max-width:1180px}
+  .grid.g2,.grid.g3,.grid.g4{grid-template-columns:minmax(0,1fr)!important}
+  .grid{gap:16px!important}
+  .card{padding:16px!important;border-radius:15px}
+  .project-preview{aspect-ratio:16/9;margin-bottom:14px}
+  .project-preview iframe{width:1440px!important;height:810px!important}
+  .card h3{font-size:clamp(19px,5vw,22px)!important;line-height:1.25}
+  .card p{font-size:14px;line-height:1.65}
+  .card .tags{gap:6px}
+  .card .tags span{font-size:11px}
+  .card .btn{max-width:100%;white-space:normal}
+  .project-cta-card{min-height:360px!important;padding:24px!important}
+  .project-cta-card h3{font-size:clamp(27px,8vw,34px)!important}
+  .page-hero{padding-top:28px!important}
+  .page-hero h1{font-size:clamp(34px,10vw,48px)!important;line-height:1.08}
+  .page-hero p{font-size:15px;line-height:1.65}
+}
+@media(max-width:380px){
+  .container{width:calc(100% - 22px)!important}
+  .card{padding:13px!important}
+  .filters button{padding:7px 12px;font-size:12px}
+}
+</style>
+<style id="mobile-preview-fallback">
+
+/* Reliable mobile project preview fallback */
+@media(max-width:700px){
+  .project-preview{
+    aspect-ratio:16/9!important;
+    min-height:175px;
+    height:auto!important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse at 15% 10%,rgba(50,137,220,.22),transparent 55%),
+      linear-gradient(145deg,#142438 0%,#0b1420 100%)!important;
+    border:1px solid rgba(104,166,220,.3)!important;
+  }
+  .project-preview iframe{display:none!important}
+  .project-preview .preview-placeholder{
+    position:absolute!important;
+    inset:0!important;
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    background:transparent!important;
+    color:#e8f2ff!important;
+    padding:20px!important;
+    gap:8px!important;
+  }
+  .project-preview .preview-placeholder strong{
+    color:#f4f8ff!important;
+    font-size:14px!important;
+    letter-spacing:.02em;
+  }
+  .project-preview .preview-placeholder small{
+    color:#a9bfd6!important;
+    max-width:290px!important;
+    font-size:11px!important;
+    line-height:1.55!important;
+  }
+  .project-preview .preview-icon{
+    color:#75baff!important;
+    font-size:25px!important;
+  }
+}
+
+</style>
+<style id="portfolio-preview-final-fix">
+
+/* FINAL FIX: do not rely on third-party iframe rendering for portfolio cards */
+.project-preview{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:16/9!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background:
+    radial-gradient(ellipse at 18% 12%,rgba(69,153,232,.28),transparent 52%),
+    radial-gradient(ellipse at 88% 90%,rgba(35,88,153,.22),transparent 50%),
+    linear-gradient(140deg,#172b43 0%,#0c1726 58%,#101f32 100%)!important;
+  border:1px solid rgba(111,174,225,.32)!important;
+}
+.project-preview > iframe{display:none!important}
+.project-preview > .preview-placeholder,
+.project-preview.preview-loaded > .preview-placeholder{
+  position:absolute!important;
+  inset:0!important;
+  z-index:5!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:9px!important;
+  padding:20px!important;
+  margin:0!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  text-align:center!important;
+  color:#eaf4ff!important;
+  background:transparent!important;
+  transition:none!important;
+}
+.project-preview .preview-icon{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:48px!important;
+  height:48px!important;
+  margin-bottom:3px!important;
+  border-radius:14px!important;
+  color:#9bd0ff!important;
+  background:rgba(92,164,229,.14)!important;
+  border:1px solid rgba(132,192,240,.24)!important;
+  font-size:20px!important;
+}
+.project-preview .preview-placeholder strong{
+  color:#f4f8ff!important;
+  font-size:15px!important;
+  font-weight:800!important;
+  letter-spacing:.02em!important;
+}
+.project-preview .preview-placeholder small{
+  display:block!important;
+  max-width:320px!important;
+  color:#b3c8dd!important;
+  font-size:11px!important;
+  line-height:1.55!important;
+  opacity:1!important;
+}
+@media(max-width:700px){
+  .project-preview{aspect-ratio:16/9!important}
+  .project-preview .preview-placeholder{padding:14px!important}
+  .project-preview .preview-icon{width:42px!important;height:42px!important}
+  .project-preview .preview-placeholder strong{font-size:13px!important}
+  .project-preview .preview-placeholder small{font-size:10px!important}
+}
+
+</style>
+<style id="mobile-project-cards-visibility-fix">
+
+/* Root cause fix: reveal animations were leaving project cards invisible on mobile */
+@media(max-width:700px){
+  main#main > section.container > .grid.g2{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    align-items:start!important;
+    align-content:start!important;
+    gap:18px!important;
+    height:auto!important;
+    min-height:0!important;
+    margin-top:0!important;
+    overflow:visible!important;
+  }
+  main#main > section.container > .grid.g2 > article.card,
+  main#main > section.container > .grid.g2 > article.project-cta-card{
+    display:block!important;
+    position:relative!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    opacity:1!important;
+    visibility:visible!important;
+    transform:none!important;
+    animation:none!important;
+    content-visibility:visible!important;
+  }
+  main#main > section.container > .grid.g2 > article.card.reveal,
+  main#main > section.container > .grid.g2 > article.project-cta-card.reveal{
+    opacity:1!important;
+    visibility:visible!important;
+    transform:none!important;
+  }
+}
+
+</style>
+<style id="influxyn-motion-root-cause-fix">
+
+/*
+ * ROOT-CAUSE FIX — motion.js scroll reveal
+ * motion.js adds .ix-a to grouped elements and forces opacity:0 until
+ * IntersectionObserver fires. On this page the parent .grid.g2 can remain
+ * hidden, which also hides every project card inside it.
+ */
+html.ix-on #main .filters.ix-a,
+html.ix-on #main .grid.g2.ix-a,
+html.ix-on #main .grid.g2 > .card.ix-a,
+html.ix-on #main .grid.g2 > article.ix-a,
+html.ix-on #main .filters > button.ix-a,
+html.ix-on #main .filters > button.ix-a.ix-in,
+html.ix-on #main .filters.ix-a.ix-in,
+html.ix-on #main .grid.g2.ix-in,
+html.ix-on #main .grid.g2 > .card.ix-in,
+html.ix-on #main .grid.g2 > article.ix-in{
+  opacity:1!important;
+  visibility:visible!important;
+  transform:none!important;
+  filter:none!important;
+  pointer-events:auto!important;
+}
+@media(max-width:700px){
+  html.ix-on #main .grid.g2,
+  html.ix-on #main .grid.g2.ix-a,
+  html.ix-on #main .grid.g2.ix-in{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  html.ix-on #main .grid.g2 > article,
+  html.ix-on #main .grid.g2 > article.ix-a,
+  html.ix-on #main .grid.g2 > article.ix-in{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    opacity:1!important;
+    visibility:visible!important;
+    transform:none!important;
+  }
+}
+
+</style>
+</head>
 <body><div id="airLoader" role="status" aria-label="Loading"><div class="al-eyes"><div class="al-eye"><i></i><b></b></div><div class="al-eye"><i></i><b></b></div></div><div class="al-brand">INFLU<span>XYN</span></div></div>
 <script>
 (function(){
@@ -106,79 +454,79 @@ window.addEventListener('pageshow',function(e){if(e.persisted){d.classList.add('
 <div id="scrollBar" aria-hidden="true"></div><a class="skip-link" href="#main">Skip to content</a>
 <header><div class="container header"><a class="brand" href="../index.html" aria-label="INFLUXYN home"><span class="logo-mark"><img src="../assets/logo.png" alt="" width="26" height="27"></span><span>INFLUXYN<small>YAGI INFLUX SOLUTIONS</small></span></a><nav class="main-nav" aria-label="Primary"><a href="../services/index.html">Services</a><a href="../projects/index.html" class="active">Projects</a><a href="../pricing/index.html">Pricing</a><a href="../demos/index.html">Demos</a><a href="../blog/index.html">Blog</a><a href="../about/index.html">About</a><a href="../contact/index.html">Contact</a></nav>
 <div class="head-actions"><a class="btn primary sm" href="../contact/index.html">Get a free quote</a><button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode" type="button"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></button><button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu" type="button"><i class="fa-solid fa-bars" aria-hidden="true"></i></button></div></div></header>
-<nav class="crumbs container" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <span>Projects</span></nav><main id="main"><section class="container page-hero"><span class="kicker">Portfolio</span><h1>Websites and platforms we have built</h1><p>15+ digital projects across multiple industries, from business websites and e-commerce to custom web platforms and online tools.</p></section><section class="container"><div class="filters"><button class="on" data-filter="all" type="button">All</button><button data-filter="Eco &amp; Sustainability" type="button">Eco &amp; Sustainability</button><button data-filter="E-commerce" type="button">E-commerce</button><button data-filter="Community &amp; Services" type="button">Community &amp; Services</button><button data-filter="Business Solutions" type="button">Business Solutions</button><button data-filter="Events &amp; Invitations" type="button">Events &amp; Invitations</button><button data-filter="E-commerce" type="button">E-commerce</button><button data-filter="Community &amp; Services" type="button">Community &amp; Services</button><button data-filter="Business Solutions" type="button">Business Solutions</button><button data-filter="Events &amp; Invitations" type="button">Events &amp; Invitations</button><button data-filter="Education" type="button">Education</button><button data-filter="Food &amp; Beverage" type="button">Food &amp; Beverage</button><button data-filter="IT Solutions" type="button">IT Solutions</button><button data-filter="Logistics" type="button">Logistics</button><button data-filter="Portfolio" type="button">Portfolio</button><button data-filter="Professional Services" type="button">Professional Services</button><button data-filter="Travel &amp; Tourism" type="button">Travel &amp; Tourism</button></div><div class="grid g2"><article class="card reveal" data-cat="Travel &amp; Tourism"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://deepsrilanka.com/" title="Deep Sri Lanka website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<nav class="crumbs container" aria-label="Breadcrumb"><a href="../index.html">Home</a> / <span>Projects</span></nav><main id="main"><section class="container page-hero"><span class="kicker">Portfolio</span><h1>Websites and platforms we have built</h1><p>15+ digital projects across multiple industries, from business websites and e-commerce to custom web platforms and online tools.</p></section><section class="container"><div class="filters"><button class="on" data-filter="all" type="button">All</button><button data-filter="Eco &amp; Sustainability" type="button">Eco &amp; Sustainability</button><button data-filter="E-commerce" type="button">E-commerce</button><button data-filter="Community &amp; Services" type="button">Community &amp; Services</button><button data-filter="Business Solutions" type="button">Business Solutions</button><button data-filter="Events &amp; Invitations" type="button">Events &amp; Invitations</button><button data-filter="Education" type="button">Education</button><button data-filter="Food &amp; Beverage" type="button">Food &amp; Beverage</button><button data-filter="IT Solutions" type="button">IT Solutions</button><button data-filter="Logistics" type="button">Logistics</button><button data-filter="Portfolio" type="button">Portfolio</button><button data-filter="Professional Services" type="button">Professional Services</button><button data-filter="Travel &amp; Tourism" type="button">Travel &amp; Tourism</button></div><div class="grid g2"><article class="card reveal" data-cat="Travel &amp; Tourism"><div class="project-preview" data-preview>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://deepsrilanka.com/" title="Deep Sri Lanka website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div><span class="num">01 · Featured Project</span><h3>Deep Sri Lanka</h3><p>Travel website showcasing Sri Lanka&#x27;s destinations with booking integration.</p><div class="tags"><span>WordPress</span><span>Elementor</span><span>Custom Theme</span></div><p style="margin:16px 0 0"><a class="btn sm" href="https://deepsrilanka.com/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Eco &amp; Sustainability"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://ecocreational.com/" title="Eco Creation website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://ecocreational.com/" title="Eco Creation website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div><span class="num">02 · Featured Project</span><h3>Eco Creation</h3><p>Sustainable products marketplace with an eco-friendly certification system.</p><div class="tags"><span>WordPress</span><span>WooCommerce</span><span>Custom Fields</span></div><p style="margin:16px 0 0"><a class="btn sm" href="https://ecocreational.com/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="E-commerce"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://airdrops.lk/" title="Airdrops.lk website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://airdrops.lk/" title="Airdrops.lk website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div>
 <span class="num">03 · Featured Project</span><h3>Airdrops.lk</h3>
 <p>An online store showcasing premium caps and phone covers, with product categories and a shopping experience built around everyday accessories.</p>
 <div class="tags"><span>WordPress</span><span>WooCommerce</span><span>E-commerce</span></div>
 <p style="margin:16px 0 0"><a class="btn sm" href="https://airdrops.lk/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Community &amp; Services"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://yathisuwasahana.netlify.app/" title="Yathi Suwa Sahana website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://yathisuwasahana.netlify.app/" title="Yathi Suwa Sahana website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div>
 <span class="num">04 · Featured Project</span><h3>Yathi Suwa Sahana</h3>
 <p>A dedicated online platform presenting the organisation and making its information and services easier for visitors to access.</p>
 <div class="tags"><span>Web Development</span><span>Responsive Design</span><span>Netlify</span></div>
 <p style="margin:16px 0 0"><a class="btn sm" href="https://yathisuwasahana.netlify.app/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Business Solutions"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://lankagas.influxyn.online/" title="LankaGas website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://lankagas.influxyn.online/" title="LankaGas website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div>
 <span class="num">05 · Featured Project</span><h3>LankaGas</h3>
 <p>A web platform created to make LankaGas-related information and digital services accessible through a clear, user-friendly interface.</p>
 <div class="tags"><span>Custom Web Platform</span><span>Responsive UI</span><span>Web Development</span></div>
 <p style="margin:16px 0 0"><a class="btn sm" href="https://lankagas.influxyn.online/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="IT Solutions"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://serpgy.com/" title="Serpgy website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://serpgy.com/" title="Serpgy website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div>
 <span class="num">06 · Featured Project</span><h3>Serpgy</h3>
 <p>A collection of practical online tools designed to help users with SEO tasks, website checks and digital productivity.</p>
 <div class="tags"><span>SEO Tools</span><span>Web Utilities</span><span>Online Platform</span></div>
 <p style="margin:16px 0 0"><a class="btn sm" href="https://serpgy.com/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Business Solutions"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://kdphonebook.netlify.app/" title="K&amp;D Phone Book website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://kdphonebook.netlify.app/" title="K&amp;D Phone Book website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div>
 <span class="num">07 · Featured Project</span><h3>K&amp;D Phone Book</h3>
 <p>A digital phone book that helps an organisation keep contact information organised and easy to find.</p>
 <div class="tags"><span>Web Application</span><span>Contact Directory</span><span>Netlify</span></div>
 <p style="margin:16px 0 0"><a class="btn sm" href="https://kdphonebook.netlify.app/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Business Solutions"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://rostat.influxyn.online/" title="K&amp;D RO Stats website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://rostat.influxyn.online/" title="K&amp;D RO Stats website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div>
 <span class="num">08 · Featured Project</span><h3>K&amp;D RO Stats</h3>
 <p>A role-based RO access and statistics platform built to support operational visibility and access management.</p>
 <div class="tags"><span>Web Application</span><span>Access Management</span><span>Firebase</span></div>
 <p style="margin:16px 0 0"><a class="btn sm" href="https://rostat.influxyn.online/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Events &amp; Invitations"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://invitation.influxyn.online/" title="INFLUXYN Invitations website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://invitation.influxyn.online/" title="INFLUXYN Invitations website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div>
 <span class="num">09 · Featured Project</span><h3>INFLUXYN Invitations</h3>
 <p>A digital invitation platform for presenting event details in a polished, shareable online format.</p>
 <div class="tags"><span>Web Development</span><span>Digital Invitations</span><span>Responsive Design</span></div>
 <p style="margin:16px 0 0"><a class="btn sm" href="https://invitation.influxyn.online/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Education"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://fairyeducational.com/" title="Fairy&#x27;s Educational website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://fairyeducational.com/" title="Fairy&#x27;s Educational website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div><span class="num">10 · More Projects</span><h3>Fairy&#x27;s Educational</h3><p>An educational platform with interactive learning modules and student management.</p><div class="tags"><span>WordPress</span><span>LearnDash</span><span>WooCommerce</span></div><p style="margin:16px 0 0"><a class="btn sm" href="https://fairyeducational.com/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Portfolio"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://asanthayagika.netlify.app/" title="Personal Portfolio website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://asanthayagika.netlify.app/" title="Personal Portfolio website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div><span class="num">11 · More Projects</span><h3>Personal Portfolio</h3><p>Modern portfolio with smooth animations and a project showcase.</p><div class="tags"><span>HTML5</span><span>CSS3</span><span>JavaScript</span></div><p style="margin:16px 0 0"><a class="btn sm" href="https://asanthayagika.netlify.app/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Food &amp; Beverage"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://kndfoods.com/" title="Supersun Vege Foods website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://kndfoods.com/" title="Supersun Vege Foods website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div><span class="num">12 · More Projects</span><h3>Supersun Vege Foods</h3><p>E-commerce platform for vegetarian food products with online ordering.</p><div class="tags"><span>WordPress</span><span>WooCommerce</span><span>Payment Gateway</span></div><p style="margin:16px 0 0"><a class="btn sm" href="https://kndfoods.com/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Logistics"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://slrcargo.lk/" title="SLR Cargo website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://slrcargo.lk/" title="SLR Cargo website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div><span class="num">13 · More Projects</span><h3>SLR Cargo</h3><p>Cargo and logistics website with tracking and a service calculator.</p><div class="tags"><span>WordPress</span><span>Custom Plugins</span><span>API</span></div><p style="margin:16px 0 0"><a class="btn sm" href="https://slrcargo.lk/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="IT Solutions"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://yagiinfluxsolutions.netlify.app/" title="YAGI Influx Solution website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://yagiinfluxsolutions.netlify.app/" title="YAGI Influx Solution website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div><span class="num">14 · More Projects</span><h3>YAGI Influx Solution</h3><p>Corporate website for an IT solutions company showcasing services and portfolio.</p><div class="tags"><span>WordPress</span><span>Custom Theme</span><span>ACF Pro</span></div><p style="margin:16px 0 0"><a class="btn sm" href="https://yagiinfluxsolutions.netlify.app/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="card reveal" data-cat="Professional Services"><div class="project-preview" data-preview>
-<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>Loading preview… If this website blocks embedding, open it using the Visit Project link.</small></div>
-<iframe src="https://unitedprofessional.gaminisilva.com/" title="United Professional website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onload="this.parentElement.classList.add('preview-loaded')"></iframe>
+<div class="preview-placeholder"><span class="preview-icon"><i class="fa-regular fa-window-maximize" aria-hidden="true"></i></span><strong>Live website preview</strong><small>This website may restrict embedded previews. Open the live project using the link below.</small></div>
+<iframe src="https://unitedprofessional.gaminisilva.com/" title="United Professional website preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div><span class="num">15 · More Projects</span><h3>United Professional</h3><p>Professional services site with appointment booking and a client portal.</p><div class="tags"><span>WordPress</span><span>Booking System</span><span>Multi-language</span></div><p style="margin:16px 0 0"><a class="btn sm" href="https://unitedprofessional.gaminisilva.com/" target="_blank" rel="noopener">Visit project <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></p></article><article class="project-cta-card reveal">
 <div class="cta-orbit cta-orbit-one"></div><div class="cta-orbit cta-orbit-two"></div>
 <div class="project-cta-content">
